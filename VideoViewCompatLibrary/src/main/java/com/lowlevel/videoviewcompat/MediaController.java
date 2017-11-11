@@ -24,8 +24,6 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -85,7 +83,6 @@ public class MediaController extends FrameLayout {
     private View mAnchor;
     private View mRoot;
     private WindowManager mWindowManager;
-    private Window mWindow;
     private View mDecor;
     private WindowManager.LayoutParams mDecorLayoutParams;
     private ProgressBar mProgress;
@@ -139,17 +136,17 @@ public class MediaController extends FrameLayout {
 
     private void initFloatingWindow() {
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        mWindow = PolicyCompat.createWindow(mContext);
-        mWindow.setWindowManager(mWindowManager, null, null);
-        mWindow.requestFeature(Window.FEATURE_NO_TITLE);
-        mDecor = mWindow.getDecorView();
+        Window window = PolicyCompat.createWindow(mContext);
+        window.setWindowManager(mWindowManager, null, null);
+        window.requestFeature(Window.FEATURE_NO_TITLE);
+        mDecor = window.getDecorView();
         mDecor.setOnTouchListener(mTouchListener);
-        mWindow.setContentView(this);
-        mWindow.setBackgroundDrawableResource(android.R.color.transparent);
+        window.setContentView(this);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
         // While the media controller is up, the volume control keys should
         // affect the media stream type
-        mWindow.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        window.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -195,7 +192,6 @@ public class MediaController extends FrameLayout {
 
     // This is called whenever mAnchor's layout bound changes
     private OnLayoutChangeListener mLayoutChangeListener =
-            (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB) ?
             new OnLayoutChangeListener() {
                 public void onLayoutChange(View v, int left, int top, int right,
                                            int bottom, int oldLeft, int oldTop, int oldRight,
@@ -205,8 +201,7 @@ public class MediaController extends FrameLayout {
                         mWindowManager.updateViewLayout(mDecor, mDecorLayoutParams);
                     }
                 }
-            } :
-            null;
+            };
 
     private OnTouchListener mTouchListener = new OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
@@ -234,13 +229,11 @@ public class MediaController extends FrameLayout {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void setAnchorView(View view) {
-        boolean hasOnLayoutChangeListener = (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB);
-
-        if (hasOnLayoutChangeListener && mAnchor != null) {
+        if (mAnchor != null) {
             mAnchor.removeOnLayoutChangeListener(mLayoutChangeListener);
         }
         mAnchor = view;
-        if (hasOnLayoutChangeListener && mAnchor != null) {
+        if (mAnchor != null) {
             mAnchor.addOnLayoutChangeListener(mLayoutChangeListener);
         }
 
@@ -268,13 +261,13 @@ public class MediaController extends FrameLayout {
     }
 
     private void initControllerView(View v) {
-        mPauseButton = (ImageButton) v.findViewById(R.id.pause);
+        mPauseButton = v.findViewById(R.id.pause);
         if (mPauseButton != null) {
             mPauseButton.requestFocus();
             mPauseButton.setOnClickListener(mPauseListener);
         }
 
-        mFfwdButton = (ImageButton) v.findViewById(R.id.ffwd);
+        mFfwdButton = v.findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
             mFfwdButton.setOnClickListener(mFfwdListener);
             if (!mFromXml) {
@@ -282,7 +275,7 @@ public class MediaController extends FrameLayout {
             }
         }
 
-        mRewButton = (ImageButton) v.findViewById(R.id.rew);
+        mRewButton = v.findViewById(R.id.rew);
         if (mRewButton != null) {
             mRewButton.setOnClickListener(mRewListener);
             if (!mFromXml) {
@@ -291,16 +284,16 @@ public class MediaController extends FrameLayout {
         }
 
         // By default these are hidden. They will be enabled when setPrevNextListeners() is called 
-        mNextButton = (ImageButton) v.findViewById(R.id.next);
+        mNextButton = v.findViewById(R.id.next);
         if (mNextButton != null && !mFromXml && !mListenersSet) {
             mNextButton.setVisibility(View.GONE);
         }
-        mPrevButton = (ImageButton) v.findViewById(R.id.prev);
+        mPrevButton = v.findViewById(R.id.prev);
         if (mPrevButton != null && !mFromXml && !mListenersSet) {
             mPrevButton.setVisibility(View.GONE);
         }
 
-        mProgress = (ProgressBar) v.findViewById(R.id.mediacontroller_progress);
+        mProgress = v.findViewById(R.id.mediacontroller_progress);
         if (mProgress != null) {
             if (mProgress instanceof SeekBar) {
                 SeekBar seeker = (SeekBar) mProgress;
@@ -309,8 +302,8 @@ public class MediaController extends FrameLayout {
             mProgress.setMax(1000);
         }
 
-        mEndTime = (TextView) v.findViewById(R.id.time);
-        mCurrentTime = (TextView) v.findViewById(R.id.time_current);
+        mEndTime = v.findViewById(R.id.time);
+        mCurrentTime = v.findViewById(R.id.time_current);
         mFormatBuilder = new StringBuilder();
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 

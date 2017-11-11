@@ -1,16 +1,16 @@
 package com.lowlevel.videoviewcompat.internal;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import android.content.Context;
 import android.os.Build;
 import android.view.Window;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
 public class PolicyCompat {
-	/*
-	 * Private constants
-	 */
+    /*
+     * Private constants
+     */
     private static final String PHONE_WINDOW_CLASS_NAME   = "com.android.internal.policy.PhoneWindow";
     private static final String POLICY_MANAGER_CLASS_NAME = "com.android.internal.policy.PolicyManager";
 
